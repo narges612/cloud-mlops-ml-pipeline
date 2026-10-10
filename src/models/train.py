@@ -7,13 +7,16 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, roc_auc_score
+from src.data.prepare_data import prepare_data
 
 DATA_PATH = "data/processed/telco_customer_churn.csv"
 
 
 def train_model():
+    prepare_data()
     df = pd.read_csv(DATA_PATH)
-    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_tracking_uri(
+    "azureml://northeurope.api.azureml.ms/mlflow/v1.0/subscriptions/425322da-2383-4f05-bbbe-03573b58e4d8/resourceGroups/rg-cloud-mlops/providers/Microsoft.MachineLearningServices/workspaces/mlops-workspace")
     mlflow.set_experiment("customer-churn-prediction")
 
     X = df.drop(columns=["Churn"])
@@ -35,7 +38,7 @@ def train_model():
     print("Testing rows:", len(X_test))
 
     categorical_features = X.select_dtypes(
-        include=["object", "str"]
+        include=["object"]
     ).columns.tolist()
 
     numerical_features = X.select_dtypes(
@@ -82,7 +85,7 @@ def train_model():
 
         mlflow.sklearn.log_model(
             model,
-            name="churn-prediction-model",
+            artifact_path="churn-prediction-model",
             serialization_format="cloudpickle",
             )
 

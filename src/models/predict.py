@@ -1,5 +1,6 @@
 import mlflow
 import pandas as pd
+import os
 
 MODEL_URI = "models:/churn-prediction-model/1"
 
@@ -10,7 +11,8 @@ def predict_churn(model, customer):
     return prediction, probability
 
 def load_model():
-    return mlflow.sklearn.load_model(MODEL_URI)
+    model_path = os.getenv("MODEL_PATH", MODEL_URI)
+    return mlflow.sklearn.load_model(model_path)
 
 sample = pd.DataFrame([{
     "gender": "Female",
@@ -36,6 +38,7 @@ sample = pd.DataFrame([{
 
 
 if __name__ == "__main__":
+    mlflow.set_tracking_uri("azureml://northeurope.api.azureml.ms/mlflow/v1.0/subscriptions/425322da-2383-4f05-bbbe-03573b58e4d8/resourceGroups/rg-cloud-mlops/providers/Microsoft.MachineLearningServices/workspaces/mlops-workspace")
     model = load_model()
     prediction, probability = predict_churn(model, sample)
 

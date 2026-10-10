@@ -31,4 +31,7 @@ data/processed/*
 # OS and editor
 .DS_Store
 .vscode/
+
+# Local model artifacts
+models/local/
 ```

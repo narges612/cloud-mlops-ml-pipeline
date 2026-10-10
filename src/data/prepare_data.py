@@ -1,16 +1,32 @@
 
-import pandas as pd
+import os
+from pathlib import Path
 
+from src.data.databricks_reader import load_customer_data
 from src.features.preprocessing import preprocess_data
 
-RAW_PATH = "data/raw/telco_customer_churn.csv"
-PROCESSED_PATH = "data/processed/telco_customer_churn.csv"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+RAW_PATH = PROJECT_ROOT / "data/raw/telco_customer_churn.csv"
+PROCESSED_PATH = PROJECT_ROOT / "data/processed/telco_customer_churn.csv"
 
 
 def prepare_data():
-    df = pd.read_csv(RAW_PATH)
-    cleaned_df = preprocess_data(df)
+    source = os.getenv("DATA_SOURCE", "local").lower()
 
+    if source == "databricks":
+        df = load_customer_data()
+        print("Source: Databricks")
+    elif source == "local":
+        import pandas as pd
+        df = pd.read_csv(RAW_PATH)
+        print("Source: local CSV")
+    else:
+        raise ValueError(
+            "DATA_SOURCE must be either 'local' or 'databricks'"
+        )
+
+    cleaned_df = preprocess_data(df)
+    PROCESSED_PATH.parent.mkdir(parents=True, exist_ok=True)
     cleaned_df.to_csv(PROCESSED_PATH, index=False)
 
     print("Original shape:", df.shape)
