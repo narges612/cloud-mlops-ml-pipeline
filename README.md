@@ -78,3 +78,8 @@ The GitHub Actions workflows run tests and automate deployment to Azure Containe
 - Extend experiment tracking and model monitoring.
 - Improve automated deployment checks and integration testing.
 - Explore distributed data processing with PySpark.
+
+## License
+
+This project is intended for educational, research, and portfolio purposes.
+
