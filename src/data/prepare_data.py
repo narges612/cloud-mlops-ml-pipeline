@@ -2,12 +2,36 @@
 import os
 from pathlib import Path
 
+import pandas as pd
+
 from src.data.databricks_reader import load_customer_data
-from src.features.preprocessing import preprocess_data
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_PATH = PROJECT_ROOT / "data/raw/telco_customer_churn.csv"
 PROCESSED_PATH = PROJECT_ROOT / "data/processed/telco_customer_churn.csv"
+
+
+def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean the Telco Customer Churn dataset."""
+    df = df.copy()
+
+    # Remove customer identifiers
+    df = df.drop(columns=["customerID"])
+
+    # Convert blank TotalCharges values to missing values
+    df["TotalCharges"] = df["TotalCharges"].replace(
+        r"^\s*$", pd.NA, regex=True
+    )
+
+    # Convert TotalCharges to numeric
+    df["TotalCharges"] = pd.to_numeric(
+        df["TotalCharges"], errors="coerce"
+    )
+
+    # Remove rows with missing TotalCharges
+    df = df.dropna(subset=["TotalCharges"])
+
+    return df
 
 
 def prepare_data():
@@ -17,7 +41,6 @@ def prepare_data():
         df = load_customer_data()
         print("Source: Databricks")
     elif source == "local":
-        import pandas as pd
         df = pd.read_csv(RAW_PATH)
         print("Source: local CSV")
     else:

@@ -1,7 +1,6 @@
 import pandas as pd
 
-from src.features.preprocessing import preprocess_data
-
+from src.data.prepare_data import preprocess_data
 
 def test_preprocess_data():
     df = pd.DataFrame({
